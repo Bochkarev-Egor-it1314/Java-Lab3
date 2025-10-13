@@ -2,6 +2,7 @@ package ru.Bochkarev.Main;
 
 import ru.Bochkarev.Chek.Chek;
 import ru.Bochkarev.City.City;
+import ru.Bochkarev.City.CityDiff;
 import ru.Bochkarev.City.NewCity;
 import ru.Bochkarev.City.Route;
 import ru.Bochkarev.Fraction.Fraction;
@@ -21,11 +22,11 @@ public class Main {
 
         // Возведение в степень
         if (args.length >= 2) {
-        String xStr = args[0];
-        String yStr = args[1];
-        double result = Power(xStr, yStr);
-        System.out.printf("Результат возведения " + xStr + " в степень " + yStr + ": " + result);
-        System.out.println();
+            String xStr = args[0];
+            String yStr = args[1];
+            double result = Power(xStr, yStr);
+            System.out.printf("Результат возведения " + xStr + " в степень " + yStr + ": " + result);
+            System.out.println();
         }
 
         // Консоль
@@ -147,7 +148,7 @@ public class Main {
                                     scanner.nextLine();  // Очистка буфера
                                     City city1 = cities.get(city1Name);
                                     City city2 = cities.get(city2Name);
-                                    city1.addWays(city2, distance);
+                                    city1.addRoad(city2, distance);
                                 } else {
                                     System.out.println("Один или оба города не существуют.");
                                 }
@@ -236,6 +237,8 @@ public class Main {
                     System.out.println("Маршрут (объект ru.Bochkarev.City.Route): " + route);
                     System.out.println("Массив городов: " + Arrays.toString(path));
 
+                    break;
+
                 }
                 case 4:
                 {
@@ -262,6 +265,8 @@ public class Main {
                         System.out.println("Ошибка: " + e.getMessage());
                     }
 
+                    break;
+
                 }
                 case 5: {
                     System.out.println("Задание 6. №5");
@@ -269,12 +274,12 @@ public class Main {
                     Scanner scanner = new Scanner(System.in);
 
                     // Создаём карту городов
-                    Map<String, City> cities = new HashMap<>();
+                    Map<String, CityDiff> cities = new HashMap<>();
 
                     // Инициализируем первый город
                     System.out.print("Введите название города: ");
                     String firstCity = scanner.nextLine();
-                    City cityF = new City(firstCity);
+                    CityDiff cityF = new CityDiff(firstCity);
                     cities.put(firstCity, cityF);
                     System.out.println("Город " + firstCity + " создан.");
 
@@ -282,10 +287,9 @@ public class Main {
                         System.out.println("Выберите действие:");
                         System.out.println("1. Создать новый город");
                         System.out.println("2. Добавить дорогу между городами");
-                        System.out.println("3. Удалить дорогу между городами");
-                        System.out.println("4. Показать все города");
-                        System.out.println("5. Сравнить города");
-                        System.out.println("6. Выйти");
+                        System.out.println("3. Показать все города");
+                        System.out.println("4. Сравнить города");
+                        System.out.println("5. Выйти");
 
                         int choose = chek.readInt(scanner);
                         scanner.nextLine();  // Очистить буфер после nextInt()
@@ -295,7 +299,7 @@ public class Main {
                                 System.out.print("Введите название города: ");
                                 String cityName = scanner.nextLine();
                                 if (!cities.containsKey(cityName)) { // Проверяем на уникальность
-                                    City city = new City(cityName);
+                                    CityDiff city = new CityDiff(cityName);
                                     cities.put(cityName, city);
                                     System.out.println("Город " + cityName + " создан.");
                                 } else {
@@ -313,8 +317,8 @@ public class Main {
                                     System.out.print("Введите расстояние между городами: ");
                                     int distance = chek.readInt(scanner);
                                     scanner.nextLine();  // Очистка буфера
-                                    City city1 = cities.get(city1Name);
-                                    City city2 = cities.get(city2Name);
+                                    CityDiff city1 = cities.get(city1Name);
+                                    CityDiff city2 = cities.get(city2Name);
                                     city1.addWays(city2, distance);
                                 } else {
                                     System.out.println("Один или оба города не существуют.");
@@ -322,36 +326,21 @@ public class Main {
                                 break;
                             }
                             case 3: {
-                                System.out.print("Введите название первого города: ");
-                                String cityToRemove1 = scanner.nextLine();
-                                System.out.print("Введите название второго города: ");
-                                String cityToRemove2 = scanner.nextLine();
-
-                                if (cities.containsKey(cityToRemove1) && cities.containsKey(cityToRemove2)) {
-                                    City city1ToRemove = cities.get(cityToRemove1);
-                                    City city2ToRemove = cities.get(cityToRemove2);
-                                    city1ToRemove.removeRoad(city2ToRemove);
-                                } else {
-                                    System.out.println("Один или оба города не существуют.");
-                                }
-                                break;
-                            }
-                            case 4: {
                                 System.out.println("Все города и их дороги:");
-                                for (City city : cities.values()) {
+                                for (CityDiff city : cities.values()) {
                                     System.out.println(city);
                                 }
                                 break;
                             }
-                            case 5: {
+                            case 4: {
                                 System.out.print("Введите название первого города для сравнения: ");
                                 String cityName1 = scanner.nextLine();
                                 System.out.print("Введите название второго города для сравнения: ");
                                 String cityName2 = scanner.nextLine();
 
                                 if (cities.containsKey(cityName1) && cities.containsKey(cityName2)) {
-                                    City city1 = cities.get(cityName1);
-                                    City city2 = cities.get(cityName2);
+                                    CityDiff city1 = cities.get(cityName1);
+                                    CityDiff city2 = cities.get(cityName2);
                                     if (city1.equals(city2)) {
                                         System.out.println("Города одинаковые.");
                                     } else {
@@ -362,7 +351,7 @@ public class Main {
                                 }
                                 break;
                             }
-                            case 6: {
+                            case 5: {
                                 System.out.println("Выход...");
                                 scanner.close();
                                 return;
@@ -384,6 +373,8 @@ public class Main {
 
                     // Проверим, что это разные объекты
                     System.out.println("Ссылки равны? " + (f1 == f2)); // false
+
+                    break;
                 }
                 default: {
                     break;
