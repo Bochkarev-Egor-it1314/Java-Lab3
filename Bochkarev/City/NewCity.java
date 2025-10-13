@@ -1,0 +1,87 @@
+package ru.Bochkarev.City;
+
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Objects;
+
+/**
+ * ru.Bochkarev.City.NewCity — вершина графа. Имя неизменно (final), пути хранятся в Map<ru.Bochkarev.City.NewCity, Integer>.
+ * Используем equals/hashCode по имени, чтобы корректно работать в HashMap/HashSet.
+ */
+public class  NewCity {
+    private final String name;
+    private final Map<NewCity, Integer> path;
+
+    public NewCity(String name) {
+        if (name == null) throw new IllegalArgumentException("ru.Bochkarev.City.City name cannot be null");
+        this.name = name;
+        this.path = new HashMap<>();
+    }
+
+    public NewCity(String name, Map<NewCity, Integer> connections) {
+        if (name == null) throw new IllegalArgumentException("ru.Bochkarev.City.City name cannot be null");
+        this.name = name;
+        this.path = new HashMap<>();
+        if (connections != null) {
+            this.path.putAll(connections);
+        }
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Возвращаем модифицируемую карту соседей (можно add/remove напрямую),
+     * либо пользоваться addPath/removePath.
+     */
+    public Map<NewCity, Integer> getPath() {
+        return path;
+    }
+
+    /**
+     * Добавляет ориентированную (directed) дорогу из этого города в city с указанной стоимостью.
+     * Если дорога уже есть — перезаписывает стоимость.
+     */
+    public void addPath(NewCity city, int cost) {
+        if (city == null) throw new IllegalArgumentException("target city is null");
+        path.put(city, cost);
+    }
+
+    /**
+     * Удаляет ориентированную дорогу из этого города в city (если есть).
+     */
+    public void removePath(NewCity city) {
+        path.remove(city);
+    }
+
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(name);
+        if (!path.isEmpty()) {
+            sb.append(" -> ");
+            boolean first = true;
+            for (Map.Entry<NewCity, Integer> e : path.entrySet()) {
+                if (!first) sb.append(", ");
+                sb.append(e.getKey().name).append(":").append(e.getValue());
+                first = false;
+            }
+        }
+        return sb.toString();
+    }
+
+    // Equals/hashCode по имени. Имя final => безопасно использовать в HashMap/HashSet.
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof NewCity)) return false;
+        NewCity other = (NewCity) o;
+        return name.equals(other.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
+    }
+}
