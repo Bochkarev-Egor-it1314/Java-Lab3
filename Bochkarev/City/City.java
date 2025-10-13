@@ -4,161 +4,65 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class City {
-    private String name;
-    private Map<City, Integer> ways;
+    private String name; // Название города
+    private Map<City, Integer> roads;  // Хранение дорог между городами
 
-    //Конструкторы
+    // Конструктор
     public City(String name) {
         this.name = name;
-        this.ways = new HashMap<>();
+        this.roads = new HashMap<>();
     }
 
-    public City(String name, Map<City, Integer> roads) {
-        this(name);
-        if (roads != null) {
-            for (City targetCity : roads.keySet()) {
-                int cost = roads.get(targetCity);
-                addWays(targetCity, cost);
-            }
-        }
-    }
-
-    //Создание города с дорогами
-    public static City createWithRoads(String name, Object... roadData) {
-        City city = new City(name);
-        if (roadData.length % 2 != 0) {
-            return city;
-        }
-
-        for (int i = 0; i < roadData.length; i += 2) {
-            if (roadData[i] instanceof City targetCity && roadData[i + 1] instanceof Integer) {
-                int distance = (Integer) roadData[i + 1];
-                city.addWays(targetCity, distance);
-            }
-        }
-        return city;
-    }
-
-    //Геттеры
+    // Геттер для названия
     public String getName() {
         return name;
     }
 
-    public Map<City, Integer> getWays() {
-        return new HashMap<>(ways);
-    }
-
-    //Сеттер названия
+    // Сеттер для названия
     public void setName(String name) {
         this.name = name;
     }
 
-    //Метод добавления дорог
-    public void addWays(City city, int way) {
-        if (city == null) {
-            throw new RuntimeException("Имя не может быть пустым");
-        }
-        if (city == this) {
-            throw new RuntimeException("Нельзя добавить дорогу из себя к себе");
-        }
-        if (way <= 0) {
-            throw new RuntimeException("Длина дороги не может быть меньше или равной 0");
-        }
-
-        if (ways.containsKey(city) || city.ways.containsKey(this)) {
-            throw new RuntimeException("Дорога между " + name + " и " + city.name + " уже существует");
-        }
-
-        ways.put(city, way);
-        city.ways.put(this, way);
+    // Геттер для дорог
+    public Map<City, Integer> getRoads() {
+        return roads;
     }
 
-    //Метод удаления дорог
+    // Сеттер для дорог
+    public void setRoads(Map<City, Integer> roads) {
+        this.roads = roads;
+    }
+
+    // Метод для добавления дороги между двумя городами
+    public void addRoad(City city, int distance) {
+        if (roads.containsKey(city)) {
+            System.out.println("Между городами уже существует дорога.");
+        } else {
+            roads.put(city, distance);
+            city.addRoad(this, distance);  // Дорога двусторонняя
+            System.out.println("Дорога добавлена между городами " + this.name + " и " + city.name);
+        }
+    }
+
+    // Метод для удаления дороги между городами
     public void removeRoad(City city) {
-        if (city == null) {
-            throw new RuntimeException("Имя не может быть пустым");
-        }
-
-        if (ways.containsKey(city) || city.ways.containsKey(this)) {
-            throw new RuntimeException("Дорога между " + name + " и " + city.name + " не найдена");
-        }
-
-        ways.remove(city);
-        city.ways.remove(this);
-    }
-
-    //Вывод дорог
-    public static void printRoads(City... cities) {
-        for (City city : cities) {
-            System.out.print("   " + city.getName() + " → ");
-            Map<City, Integer> roads = city.getWays();
-            if (roads.isEmpty()) {
-                System.out.println("Нет дорог");
-            } else {
-                boolean first = true;
-                for (Map.Entry<City, Integer> road : roads.entrySet()) {
-                    if (!first) System.out.print(", ");
-                    System.out.print(road.getKey().getName() + " Расстояние:" + road.getValue());
-                    first = false;
-                }
-                System.out.println();
-            }
+        if (roads.containsKey(city)) {
+            roads.remove(city);
+            city.removeRoad(this);  // Удаляем дорогу и в обратную сторону
+            System.out.println("Дорога между городами " + this.name + " и " + city.name + " удалена.");
+        } else {
+            System.out.println("Дорога между городами не существует.");
         }
     }
 
-    //Сравнение городов по дорогам
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
-        City city = (City) obj;
-
-        return sameWays(city);
-    }
-
-    @Override
-    public int hashCode() {
-        //return Objects.hash(name);
-        int result = 1;
-        for (Map.Entry<City, Integer> entry : ways.entrySet()) {
-            result = 31 * result + entry.getKey().getName().hashCode();
-            result = 31 * result + entry.getValue().hashCode();
-        }
-        return result;
-    }
-
-    //Метод проверяет одинаковые наборы дорог
-    public boolean sameWays(City city) {
-        if (city == null || this.ways.size() != city.ways.size())
-            return false;
-
-        for (Map.Entry<City, Integer> entry : this.ways.entrySet()) {
-            City target = entry.getKey();
-            Integer distance = entry.getValue();
-
-            boolean found = false;
-            for (Map.Entry<City, Integer> otherEntry : city.ways.entrySet()) {
-                if (otherEntry.getKey().getName().equals(target.getName()) &&
-                        otherEntry.getValue().equals(distance)) {
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found) return false;
-        }
-
-        return true;
-    }
-
-    //Вывод
+    // Метод для вывода информации о дорогах города
     @Override
     public String toString() {
         String result = name;
-        if (!ways.isEmpty()) {
+        if (!roads.isEmpty()) {
             result += " -> ";
             boolean first = true;
-            for (Map.Entry<City, Integer> road : ways.entrySet()) {
+            for (Map.Entry<City, Integer> road : roads.entrySet()) {
                 if (!first) result += ", ";
                 result += road.getKey().name + ":" + road.getValue();
                 first = false;
